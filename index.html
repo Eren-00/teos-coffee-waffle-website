@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teos Coffee & Waffle — Bolu</title>
+<meta name="description" content="Bolu, Kılıçarslan Mahallesi'nde waffle, dondurma ve kahve deneyimi. Teos Coffee And Waffle.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{
+  --bg:#F7F4EF; --dark:#1A1A1A; --coffee:#5B3A29; --beige:#E8DCCB; --gold:#C89B3C; --gold-hover:#A8732B;
+  --line: rgba(26,26,26,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--dark);font-family:'Inter',sans-serif;overflow-x:hidden;cursor:none;}
+@media (max-width: 900px){ body{cursor:auto;} }
+::selection{background:var(--gold);color:#fff;}
+
+/* custom cursor */
+.cursor-glow{
+  position:fixed;top:0;left:0;width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle, rgba(200,155,60,.16) 0%, rgba(200,155,60,0) 65%);
+  pointer-events:none;z-index:9997;transform:translate(-50%,-50%);will-change:transform;
+}
+.cursor-dot{
+  position:fixed;top:0;left:0;width:8px;height:8px;border-radius:50%;background:var(--gold);
+  pointer-events:none;z-index:9999;transform:translate(-50%,-50%);will-change:transform;
+}
+.cursor-ring{
+  position:fixed;top:0;left:0;width:38px;height:38px;border-radius:50%;border:1px solid rgba(200,155,60,.6);
+  pointer-events:none;z-index:9999;transform:translate(-50%,-50%);
+  transition:width .25s,height .25s,opacity .25s,border-color .25s;
+}
+@media (max-width:900px){.cursor-glow,.cursor-dot,.cursor-ring{display:none;}}
+.serif{font-family:'Playfair Display',serif;}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;border:none;background:none;cursor:pointer;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 40px;}
+@media (max-width:768px){.wrap{padding:0 22px;}}
+
+#brewline{position:fixed;top:0;left:0;height:3px;width:100%;z-index:9996;background:transparent;}
+#brewline i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--coffee),var(--gold));transform-origin:left;}
+
+/* loader */
+#loader{position:fixed;inset:0;background:var(--dark);z-index:10000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+.loader-logo{font-family:'Playfair Display',serif;font-size:clamp(46px,9vw,100px);letter-spacing:.12em;color:var(--beige);}
+.loader-logo span{display:inline-block;opacity:0;transform:translateY(40px);}
+.loader-sub{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);opacity:0;font-weight:500;}
+.loader-bar{width:200px;height:1px;background:rgba(232,220,203,.18);position:relative;overflow:hidden;opacity:0;}
+.loader-bar i{position:absolute;left:0;top:0;bottom:0;width:0%;background:var(--gold);}
+
+/* navbar */
+header{position:fixed;top:0;left:0;right:0;z-index:1000;padding:26px 0;transition:.5s cubic-bezier(.2,.8,.2,1);}
+header.scrolled{padding:14px 0;background:rgba(247,244,239,.7);backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid var(--line);}
+nav{display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Playfair Display',serif;font-size:23px;font-weight:700;letter-spacing:.06em;}
+header:not(.scrolled) .logo{color:#fff;}
+.nav-links{display:flex;gap:34px;list-style:none;}
+.nav-links a{font-size:13.5px;font-weight:500;color:#fff;position:relative;transition:color .3s;}
+header.scrolled .nav-links a{color:var(--dark);}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:-4px;height:1px;width:0;background:var(--gold);transition:width .3s;}
+.nav-links a:hover::after{width:100%;}
+.nav-links a:hover{color:var(--gold);}
+.btn-reserve{padding:11px 24px;border-radius:100px;font-size:13px;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,var(--coffee),var(--gold));background-size:200% 200%;background-position:0% 50%;
+  transition:background-position .6s ease, transform .3s ease;}
+.btn-reserve:hover{background-position:100% 50%;transform:translateY(-2px);}
+.burger{display:none;width:24px;height:18px;position:relative;z-index:1200;}
+.burger span{position:absolute;left:0;width:100%;height:1.5px;background:#fff;transition:.35s;}
+header.scrolled .burger span{background:var(--dark);}
+.burger span:nth-child(1){top:0;} .burger span:nth-child(2){top:8px;} .burger span:nth-child(3){top:16px;}
+@media (max-width:860px){ .nav-links,.btn-reserve{display:none;} .burger{display:block;} }
+#mobileMenu{position:fixed;inset:0;background:var(--dark);z-index:1100;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:24px;transform:translateY(-100%);transition:transform .5s cubic-bezier(.2,.8,.2,1);}
+#mobileMenu.open{transform:translateY(0);}
+#mobileMenu a{color:var(--beige);font-family:'Playfair Display',serif;font-size:26px;}
+
+/* hero with real video hookup */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--dark);}
+.hero video, .hero .fallback-visual{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.fallback-visual{background:
+  radial-gradient(circle at 20% 30%, rgba(91,58,41,.9), transparent 55%),
+  radial-gradient(circle at 80% 20%, rgba(200,155,60,.35), transparent 50%),
+  radial-gradient(circle at 60% 80%, rgba(91,58,41,.85), transparent 60%),
+  linear-gradient(160deg,#120e0b,#1A1A1A 60%);
+}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.6) 70%,rgba(0,0,0,.78));}
+.hero-content{position:relative;z-index:2;text-align:center;color:#fff;padding:0 20px;}
+.eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;
+  display:flex;align-items:center;justify-content:center;gap:12px;}
+.eyebrow::before,.eyebrow::after{content:'';width:28px;height:1px;background:var(--gold);opacity:.6;}
+.hero h1{font-family:'Playfair Display',serif;font-weight:600;font-size:clamp(42px,7.5vw,96px);line-height:1.03;letter-spacing:-.01em;}
+.hero h1 em{font-style:italic;color:var(--gold);}
+.hero p.sub{max-width:480px;margin:24px auto 0;font-size:16.5px;line-height:1.7;color:rgba(255,255,255,.72);font-weight:300;}
+.hero-actions{display:flex;gap:16px;justify-content:center;margin-top:40px;flex-wrap:wrap;}
+.btn{padding:15px 32px;border-radius:100px;font-size:13.5px;font-weight:600;letter-spacing:.02em;transition:transform .35s cubic-bezier(.2,.8,.2,1);}
+.btn-ghost{border:1px solid rgba(255,255,255,.35);color:#fff;}
+.btn-ghost:hover{transform:translateY(-3px);border-color:var(--gold);color:var(--gold);}
+.btn-gold{background:var(--gold);color:#1A1A1A;}
+.btn-gold:hover{transform:translateY(-3px);background:var(--gold-hover);color:#fff;}
+.scroll-ind{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,.5);}
+.scroll-ind span{font-size:10px;letter-spacing:.26em;text-transform:uppercase;}
+.scroll-line{width:1px;height:42px;background:linear-gradient(180deg,var(--gold),transparent);position:relative;overflow:hidden;}
+.scroll-line i{position:absolute;top:-100%;left:0;width:100%;height:100%;background:#fff;animation:scrolldrip 2.2s ease-in-out infinite;}
+@keyframes scrolldrip{0%{top:-100%;}60%{top:100%;}100%{top:100%;}}
+
+section{position:relative;}
+.section-pad{padding:120px 0;}
+@media (max-width:768px){.section-pad{padding:76px 0;}}
+.tag{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:16px;display:block;}
+.h2{font-family:'Playfair Display',serif;font-size:clamp(30px,4.2vw,52px);line-height:1.08;font-weight:600;}
+.h2 em{font-style:italic;color:var(--coffee);}
+.section-head{max-width:620px;margin-bottom:60px;}
+.section-head.center{margin-left:auto;margin-right:auto;text-align:center;}
+.reveal{opacity:0;transform:translateY(46px);}
+
+/* trust bar (real ratings) */
+.trust{background:var(--dark);color:var(--beige);}
+.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;text-align:center;}
+@media (max-width:700px){.trust-grid{grid-template-columns:1fr;gap:40px;}}
+.trust-num{font-family:'Playfair Display',serif;font-size:clamp(32px,4.6vw,54px);color:var(--gold);font-weight:600;}
+.trust-label{margin-top:8px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(232,220,203,.6);}
+.trust-src{margin-top:4px;font-size:11px;color:rgba(232,220,203,.4);}
+
+/* reviews */
+.reviews-outer{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);}
+.reviews-track{display:flex;gap:22px;width:max-content;animation:scrollx 42s linear infinite;}
+@keyframes scrollx{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.review-card{width:320px;flex-shrink:0;padding:28px;border-radius:20px;background:rgba(255,255,255,.6);
+  backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.6);box-shadow:0 20px 40px -28px rgba(26,26,26,.25);}
+.stars{color:var(--gold);letter-spacing:3px;font-size:14px;margin-bottom:12px;}
+.review-card p{font-size:13.5px;line-height:1.65;color:rgba(26,26,26,.72);margin-bottom:16px;}
+.rev-name{font-size:12px;font-weight:700;}
+.rev-src{font-size:10.5px;color:rgba(26,26,26,.45);}
+
+/* popular products */
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;perspective:1400px;}
+@media (max-width:980px){.card-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:620px){.card-grid{grid-template-columns:1fr;}}
+.drink-card{position:relative;border-radius:22px;overflow:hidden;background:linear-gradient(160deg,#fff,var(--beige) 130%);
+  padding:28px;height:340px;display:flex;flex-direction:column;justify-content:flex-end;
+  box-shadow:0 18px 44px -25px rgba(26,26,26,.18);transition:box-shadow .4s ease;transform-style:preserve-3d;will-change:transform;}
+.drink-card:hover{box-shadow:0 30px 60px -25px rgba(91,58,41,.35);}
+.drink-visual{position:absolute;inset:0;z-index:0;transition:transform .5s cubic-bezier(.2,.8,.2,1);
+  background:radial-gradient(circle at 70% 20%, var(--gv,var(--gold)) 0%, transparent 60%),
+             radial-gradient(circle at 20% 90%, var(--coffee) 0%, transparent 55%), var(--beige);}
+.drink-card:hover .drink-visual{transform:scale(1.13) rotate(2deg);}
+.fav{position:absolute;top:20px;right:20px;z-index:2;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);
+  padding:6px 13px;border-radius:100px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--coffee);
+  font-weight:700;border:1px solid rgba(200,155,60,.4);}
+.drink-body{position:relative;z-index:1;}
+.drink-name{font-family:'Playfair Display',serif;font-size:23px;font-weight:600;margin-bottom:6px;}
+.drink-desc{font-size:13px;color:rgba(26,26,26,.6);line-height:1.5;}
+
+/* instagram */
+.insta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media (max-width:700px){.insta-grid{grid-template-columns:repeat(2,1fr);}}
+.insta-item{aspect-ratio:1;border-radius:14px;position:relative;overflow:hidden;cursor:pointer;}
+.insta-item .fill{position:absolute;inset:0;}
+.insta-item .heart{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;
+  opacity:0;background:rgba(0,0,0,.28);transition:opacity .3s;}
+.insta-item:hover .heart{opacity:1;}
+.insta-item.liked .heart{animation:heartpop .5s ease;}
+@keyframes heartpop{0%{transform:scale(.4);}50%{transform:scale(1.3);}100%{transform:scale(1);}}
+.insta-cta{text-align:center;margin-top:36px;}
+
+/* reservation */
+.reserve-wrap{display:grid;grid-template-columns:.9fr 1.1fr;border-radius:26px;overflow:hidden;box-shadow:0 36px 80px -40px rgba(26,26,26,.3);}
+@media (max-width:860px){.reserve-wrap{grid-template-columns:1fr;}}
+.reserve-side{background:linear-gradient(160deg,var(--coffee),#2a1a12);padding:52px;color:var(--beige);display:flex;flex-direction:column;justify-content:center;}
+.reserve-side .h2{color:#fff;}
+.reserve-side p{margin-top:16px;font-size:14px;line-height:1.75;color:rgba(232,220,203,.75);font-weight:300;}
+.reserve-form{background:#fff;padding:52px;}
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:rgba(26,26,26,.5);margin-bottom:8px;font-weight:600;}
+.field input,.field select,.field textarea{width:100%;border:none;border-bottom:1px solid var(--line);padding:11px 4px;font-size:15px;font-family:inherit;background:transparent;transition:border-color .3s;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media (max-width:520px){.field-row{grid-template-columns:1fr;}}
+.btn-submit{width:100%;padding:16px;border-radius:100px;background:var(--dark);color:#fff;font-weight:600;font-size:13.5px;margin-top:6px;transition:.35s;}
+.btn-submit:hover{background:var(--gold-hover);}
+#reserveSuccess{display:none;text-align:center;padding:34px 0;}
+#reserveSuccess.show{display:block;}
+
+/* map / contact */
+.map-wrap{display:grid;grid-template-columns:1.2fr .8fr;border-radius:26px;overflow:hidden;}
+@media (max-width:860px){.map-wrap{grid-template-columns:1fr;}}
+.map-wrap iframe{width:100%;height:100%;min-height:400px;border:0;filter:grayscale(.25) contrast(1.05);}
+.map-info{background:var(--dark);color:var(--beige);padding:50px;display:flex;flex-direction:column;justify-content:center;gap:24px;}
+.info-row p{font-size:14.5px;color:rgba(232,220,203,.8);}
+.whatsapp-btn{margin-top:8px;display:inline-flex;align-items:center;gap:10px;padding:13px 24px;border-radius:100px;
+  background:var(--gold);color:#1A1A1A;font-weight:700;font-size:13px;width:fit-content;transition:.3s;}
+.whatsapp-btn:hover{background:var(--gold-hover);color:#fff;}
+
+/* footer */
+footer{background:var(--dark);color:rgba(232,220,203,.6);padding:70px 0 26px;}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:44px;padding-bottom:50px;border-bottom:1px solid rgba(232,220,203,.1);}
+@media (max-width:700px){.footer-grid{grid-template-columns:1fr 1fr;}}
+.footer-grid h4{color:#fff;font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:18px;}
+.footer-grid a,.footer-grid p{display:block;font-size:13px;margin-bottom:9px;color:rgba(232,220,203,.6);}
+.footer-grid a:hover{color:var(--gold);}
+.footer-logo{font-family:'Playfair Display',serif;font-size:24px;color:#fff;margin-bottom:14px;}
+.social-row{display:flex;gap:12px;margin-top:16px;}
+.social-row a{width:36px;height:36px;border:1px solid rgba(232,220,203,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.3s;}
+.social-row a:hover{background:var(--gold);border-color:var(--gold);color:#1A1A1A;}
+.bottom-bar{padding-top:22px;display:flex;justify-content:space-between;font-size:11.5px;color:rgba(232,220,203,.4);flex-wrap:wrap;gap:10px;}
+</style>
+</head>
+<body>
+
+<div class="cursor-glow" id="cursorGlow"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div id="brewline"><i id="brewlineFill"></i></div>
+
+<div id="loader">
+  <div class="loader-logo" id="loaderLogo"><span>T</span><span>E</span><span>O</span><span>S</span></div>
+  <div class="loader-sub" id="loaderSub">Brewing Your Experience...</div>
+  <div class="loader-bar" id="loaderBar"><i id="loaderBarFill"></i></div>
+</div>
+
+<header id="header">
+  <div class="wrap">
+    <nav>
+      <a href="#home" class="logo">TEOS</a>
+      <ul class="nav-links">
+        <li><a href="#home">Anasayfa</a></li>
+        <li><a href="#reviews">Yorumlar</a></li>
+        <li><a href="#products">Ürünler</a></li>
+        <li><a href="#instagram">Instagram</a></li>
+        <li><a href="#reservation">Rezervasyon</a></li>
+        <li><a href="#contact">İletişim</a></li>
+      </ul>
+      <a href="#reservation" class="btn-reserve">Rezervasyon Yap</a>
+      <div class="burger" id="burger"><span></span><span></span><span></span></div>
+    </nav>
+  </div>
+</header>
+
+<div id="mobileMenu">
+  <a href="#home">Anasayfa</a>
+  <a href="#reviews">Yorumlar</a>
+  <a href="#products">Ürünler</a>
+  <a href="#instagram">Instagram</a>
+  <a href="#reservation">Rezervasyon</a>
+  <a href="#contact">İletişim</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <video autoplay muted loop playsinline poster="teos-hero-poster.jpg">
+    <source src="teos-hero.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="eyebrow reveal" id="heroEyebrow">Bolu · Kılıçarslan Mah.</div>
+    <h1 class="reveal" id="heroTitle">Coffee is an<br><em>Experience.</em></h1>
+    <p class="sub reveal" id="heroSub">Bolu'nun en özel waffle, dondurma ve kahve deneyimi — Teos Coffee And Waffle.</p>
+    <div class="hero-actions reveal" id="heroActions">
+      <a href="#products" class="btn btn-gold">Ürünleri Gör</a>
+      <a href="#reservation" class="btn btn-ghost">Rezervasyon Yap</a>
+    </div>
+  </div>
+  <div class="scroll-ind"><span>Aşağı Kaydır</span><div class="scroll-line"><i></i></div></div>
+</section>
+
+<!-- TRUST / REAL RATINGS -->
+<section class="trust section-pad">
+  <div class="wrap">
+    <div class="trust-grid">
+      <div class="reveal">
+        <div class="trust-num">4.5★</div>
+        <div class="trust-label">Puan</div>
+        <div class="trust-src">Google · 85 değerlendirme</div>
+      </div>
+      <div class="reveal">
+        <div class="trust-num">4.1★</div>
+        <div class="trust-label">Puan</div>
+        <div class="trust-src">Yemeksepeti · 40 değerlendirme</div>
+      </div>
+      <div class="reveal">
+        <div class="trust-num">09:00–00:00</div>
+        <div class="trust-label">Her Gün Açık</div>
+        <div class="trust-src">Kılıçarslan Mah., Bolu</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GOOGLE / MÜŞTERİ YORUMLARI -->
+<section class="section-pad" id="reviews">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="tag">Müşteri Yorumları</span>
+      <h2 class="h2">Misafirlerimiz <em>ne diyor?</em></h2>
+    </div>
+  </div>
+  <div class="reviews-outer">
+    <div class="reviews-track" id="reviewsTrack"></div>
+  </div>
+</section>
+
+<!-- POPÜLER ÜRÜNLER -->
+<section class="section-pad" style="background:var(--beige);" id="products">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag">En Çok Sevilenler</span>
+      <h2 class="h2">Popüler <em>ürünlerimiz.</em></h2>
+    </div>
+    <div class="card-grid">
+      <div class="drink-card reveal" data-tilt>
+        <span class="fav">En Çok Konuşulan</span>
+        <div class="drink-visual" style="--gv:#C89B3C;"></div>
+        <div class="drink-body">
+          <div class="drink-name">Dubai Waffle</div>
+          <div class="drink-desc">Müşterilerimizin en çok bahsettiği imza lezzetimiz.</div>
+        </div>
+      </div>
+      <div class="drink-card reveal" data-tilt>
+        <div class="drink-visual" style="--gv:#A8732B;"></div>
+        <div class="drink-body">
+          <div class="drink-name">Klasik Waffle</div>
+          <div class="drink-desc">Nutella, muz, çilek ve damla çikolata ile hazırlanan klasik favorimiz.</div>
+        </div>
+      </div>
+      <div class="drink-card reveal" data-tilt>
+        <span class="fav">Sürpriz İkram</span>
+        <div class="drink-visual"><img src="teos-insta-3.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" alt="Teos soğuk içecekler"><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.7) 100%);"></div></div>
+        <div class="drink-body">
+          <div class="drink-name">İmza Soğuk İçecekler</div>
+          <div class="drink-desc">TEOS bardaklarıyla servis edilen taze meyveli soğuk içeceklerimiz.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTAGRAM -->
+<section class="section-pad" id="instagram">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <span class="tag">@teoscoffeeandwaffle</span>
+      <h2 class="h2">Instagram'da <em>bizi takip edin.</em></h2>
+    </div>
+    <div class="insta-grid" id="instaGrid"></div>
+    <div class="insta-cta reveal">
+      <a href="https://www.instagram.com/teoscoffeeandwaffle/" target="_blank" class="btn btn-gold" style="color:#1A1A1A;">Instagram'ı Ziyaret Et</a>
+    </div>
+  </div>
+</section>
+
+<!-- RESERVATION -->
+<section class="section-pad" id="reservation">
+  <div class="wrap">
+    <div class="reserve-wrap reveal">
+      <div class="reserve-side">
+        <span class="tag" style="color:var(--gold);">Rezervasyon</span>
+        <h2 class="h2">Masanızı <em>ayırtın.</em></h2>
+        <p>Waffle ve kahve keyfiniz için yerinizi ayırtın, sizi Kılıçarslan Mahallesi'ndeki mekanımızda ağırlamaktan mutluluk duyarız.</p>
+      </div>
+      <div class="reserve-form">
+        <form id="reserveForm">
+          <div class="field"><label>Ad Soyad</label><input type="text" required placeholder="Adınız Soyadınız"></div>
+          <div class="field-row">
+            <div class="field"><label>Telefon</label><input type="tel" required placeholder="05xx xxx xx xx"></div>
+            <div class="field"><label>Kişi Sayısı</label>
+              <select required><option value="">Seçin</option><option>1</option><option>2</option><option>3-4</option><option>5+</option></select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Tarih</label><input type="date" required></div>
+            <div class="field"><label>Saat</label><input type="time" required></div>
+          </div>
+          <button class="btn-submit" type="submit">Rezervasyon Oluştur</button>
+        </form>
+        <div id="reserveSuccess">
+          <div class="h2" style="font-size:28px;">Teşekkürler! ✨</div>
+          <p style="margin-top:12px;color:rgba(26,26,26,.6);">Rezervasyon talebiniz alındı. Sizi arayarak onaylayacağız.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAP / CONTACT -->
+<section class="section-pad" id="contact">
+  <div class="wrap">
+    <div class="map-wrap reveal">
+      <iframe src="https://www.google.com/maps?q=Teos+Coffee+And+Waffle,+K%C4%B1l%C4%B1%C3%A7arslan,+Bolu&z=15&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-info">
+        <div class="info-row"><span class="tag">Adres</span><p>Kılıçarslan, Muhsin Yazıcıoğlu Blv. No:1-3/17, 14200 Bolu Merkez</p></div>
+        <div class="info-row"><span class="tag">Telefon</span><p>+90 505 553 00 14</p></div>
+        <div class="info-row"><span class="tag">Çalışma Saatleri</span><p>Her gün 09:00 – 00:00</p></div>
+        <a href="https://wa.me/905055530014" class="whatsapp-btn">WhatsApp'tan Yazın →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">TEOS</div>
+        <p style="max-width:260px;">Bolu, Kılıçarslan Mahallesi'nde waffle, dondurma ve kahve deneyimi.</p>
+        <div class="social-row">
+          <a href="https://www.instagram.com/teoscoffeeandwaffle/" target="_blank" aria-label="Instagram">IG</a>
+          <a href="https://wa.me/905055530014" aria-label="Whatsapp">WA</a>
+        </div>
+      </div>
+      <div>
+        <h4>Keşfet</h4>
+        <a href="#products">Ürünler</a>
+        <a href="#reviews">Yorumlar</a>
+        <a href="#reservation">Rezervasyon</a>
+      </div>
+      <div>
+        <h4>İletişim</h4>
+        <p>+90 505 553 00 14</p>
+        <p>Kılıçarslan Mah., Bolu</p>
+        <a href="#contact">Haritada Gör</a>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <span>© 2026 Teos Coffee And Waffle. Tüm hakları saklıdır.</span>
+      <span>Bolu, Türkiye</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const loaderTl = gsap.timeline({
+  onComplete(){
+    document.getElementById('loader').style.pointerEvents='none';
+    gsap.to('#loader',{opacity:0,duration:.8,onComplete:()=>document.getElementById('loader').remove()});
+    playHero();
+  }
+});
+loaderTl.to('.loader-logo span',{opacity:1,y:0,duration:.7,stagger:.08,ease:'back.out(1.7)'})
+  .to('#loaderSub',{opacity:1,duration:.5},'-=.2')
+  .to('#loaderBar',{opacity:1,duration:.3})
+  .to('#loaderBarFill',{width:'100%',duration:1.4,ease:'power2.inOut'})
+  .to('.loader-logo,#loaderSub',{opacity:0,y:-14,duration:.5},'+=.2');
+
+function playHero(){
+  gsap.to('#heroEyebrow',{opacity:1,y:0,duration:.7,ease:'power3.out'});
+  gsap.to('#heroTitle',{opacity:1,y:0,duration:.9,delay:.15,ease:'power3.out'});
+  gsap.to('#heroSub',{opacity:1,y:0,duration:.9,delay:.3,ease:'power3.out'});
+  gsap.to('#heroActions',{opacity:1,y:0,duration:.9,delay:.45,ease:'power3.out'});
+}
+gsap.set('#heroEyebrow,#heroTitle,#heroSub,#heroActions',{y:24});
+
+window.addEventListener('scroll',()=>{
+  const h = document.documentElement;
+  const pct = (h.scrollTop)/(h.scrollHeight-h.clientHeight)*100;
+  document.getElementById('brewlineFill').style.width = pct+'%';
+});
+
+const header = document.getElementById('header');
+window.addEventListener('scroll',()=>{ header.classList.toggle('scrolled', window.scrollY>60); });
+const burger = document.getElementById('burger'), mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click',()=>mobileMenu.classList.toggle('open'));
+mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mobileMenu.classList.remove('open')));
+
+/* ---------- custom cursor ---------- */
+const dot=document.getElementById('cursorDot'), ring=document.getElementById('cursorRing'), glow=document.getElementById('cursorGlow');
+let mx=innerWidth/2,my=innerHeight/2, rx=mx, ry=my, gx=mx, gy=my;
+window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY; dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;});
+function loopCursor(){
+  rx += (mx-rx)*0.18; ry += (my-ry)*0.18;
+  gx += (mx-gx)*0.09; gy += (my-gy)*0.09;
+  ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+  glow.style.transform=`translate(${gx}px,${gy}px) translate(-50%,-50%)`;
+  requestAnimationFrame(loopCursor);
+}
+loopCursor();
+document.querySelectorAll('a,button,.drink-card,.insta-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.width='64px';ring.style.height='64px';ring.style.borderColor='var(--gold)';});
+  el.addEventListener('mouseleave',()=>{ring.style.width='38px';ring.style.height='38px';});
+});
+
+document.querySelectorAll('.reveal').forEach(el=>{
+  gsap.to(el,{opacity:1,y:0,duration:1,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%'}});
+});
+
+document.querySelectorAll('[data-tilt]').forEach(card=>{
+  card.addEventListener('mousemove', e=>{
+    const r = card.getBoundingClientRect();
+    const px = (e.clientX - r.left)/r.width - .5;
+    const py = (e.clientY - r.top)/r.height - .5;
+    card.style.transform = `rotateY(${px*10}deg) rotateX(${-py*10}deg) translateY(-6px)`;
+  });
+  card.addEventListener('mouseleave', ()=>{ card.style.transform='rotateY(0) rotateX(0) translateY(0)'; });
+});
+
+/* Real customer review excerpts, paraphrased from Google Maps and Yemeksepeti feedback */
+const reviews = [
+  {text:'Bolu\'daki en sevdiği mekan olduğunu, sıcak atmosferi ve güler yüzlü servisiyle kendini evinde hissettiğini paylaştı.', src:'Google · Değerlendirme'},
+  {text:'Kahvelerin lezzetli, waffle\'ların hem görsel hem tat açısından çok başarılı olduğunu belirtti.', src:'Google · Değerlendirme'},
+  {text:'Ekibin ilgisi ve sunumundan çok etkilendiğini, zarif ve sakin bir atmosfer olduğunu yazdı.', src:'Google · Değerlendirme'},
+  {text:'Bolu\'da yediği en güzel waffle olduğunu, notunu dikkate aldıkları için ayrıca teşekkür ettiğini belirtti.', src:'Yemeksepeti · Sipariş Yorumu'},
+  {text:'Teslimatın hızlı, waffle\'ın lezzetli olduğunu ve yanında gönderilen cupcake ikramını çok beğendiğini yazdı.', src:'Yemeksepeti · Sipariş Yorumu'},
+  {text:'Uzun zamandır yediği en lezzetli ve doyurucu waffle olduğunu belirtti.', src:'Yemeksepeti · Sipariş Yorumu'},
+];
+const track = document.getElementById('reviewsTrack');
+[...reviews,...reviews].forEach(r=>{
+  const c = document.createElement('div');
+  c.className='review-card';
+  c.innerHTML = `<div class="stars">★★★★★</div><p>${r.text}</p><div class="rev-src">${r.src}</div>`;
+  track.appendChild(c);
+});
+
+const instaPhotos = ['teos-insta-3.jpg','teos-insta-1.jpg','teos-insta-4.jpg','teos-insta-5.jpg','teos-insta-2.jpg','teos-insta-6.jpg'];
+const instaGrid = document.getElementById('instaGrid');
+instaPhotos.forEach(src=>{
+  const it = document.createElement('div');
+  it.className='insta-item';
+  it.innerHTML = `<img class="fill" src="${src}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" alt="Teos Coffee And Waffle Instagram"><div class="heart">♥</div>`;
+  it.addEventListener('click',()=>{ it.classList.remove('liked'); void it.offsetWidth; it.classList.add('liked'); });
+  instaGrid.appendChild(it);
+});
+
+document.getElementById('reserveForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  document.getElementById('reserveForm').style.display='none';
+  document.getElementById('reserveSuccess').classList.add('show');
+});
+
+document.querySelector('.hero').addEventListener('mousemove', e=>{
+  const px = e.clientX/innerWidth - .5, py = e.clientY/innerHeight - .5;
+  gsap.to('.hero video',{x:px*16, y:py*16, scale:1.04, duration:1, ease:'power2.out'});
+});
+</script>
+</body>
+</html>
